@@ -5,11 +5,33 @@
 
 package monitor
 
+import (
+	"github.com/shirou/gopsutil/v3/mem"
+	"short_link_sys_core_be/log"
+)
+
 var (
-	memTotal  int64
-	swapTotal int64
+	memTotal  uint64
+	swapTotal uint64
 )
 
 func memStaticInfoSet() {
+	if memoryStat, err := mem.VirtualMemory(); err == nil {
+		memTotal = memoryStat.Total
+		swapTotal = memoryStat.SwapTotal
+	} else {
+		log.MainLogger.WithField("module", "monitor").Error("memStaticInfoSet: ", err)
+	}
+}
 
+// memDynamicInfo 获取内存使用情况 每隔一秒调用
+func memDynamicInfo() (memUsed, memFree, swapUsed uint64) {
+	if memoryStat, err := mem.VirtualMemory(); err == nil {
+		memUsed = memoryStat.Used
+		memFree = memoryStat.Available
+		swapUsed = memoryStat.SwapTotal - memoryStat.SwapFree
+	} else {
+		log.MainLogger.WithField("module", "monitor").Error("memDynamicInfo: ", err)
+	}
+	return
 }
