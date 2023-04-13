@@ -8,6 +8,7 @@ package monitor
 import (
 	"github.com/shirou/gopsutil/v3/cpu"
 	"short_link_sys_core_be/log"
+	"time"
 )
 
 var (
@@ -16,6 +17,7 @@ var (
 	threadNum int
 	cacheSize int // B
 	cpuSpeed  int // MHz
+	startTime time.Time
 )
 
 func cpuStaticInfoSet() {
@@ -35,6 +37,7 @@ func cpuStaticInfoSet() {
 	cpuModel = cpuInfo[0].ModelName
 	cacheSize = int(cpuInfo[0].CacheSize)
 	cpuSpeed = int(cpuInfo[0].Mhz)
+	startTime = time.Now()
 }
 
 // cpuUsage CPU使用率 每隔一秒调用
