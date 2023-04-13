@@ -15,6 +15,7 @@ var (
 	coreNum   int
 	threadNum int
 	cacheSize int // B
+	cpuSpeed  int // MHz
 )
 
 func cpuStaticInfoSet() {
@@ -33,4 +34,15 @@ func cpuStaticInfoSet() {
 	}
 	cpuModel = cpuInfo[0].ModelName
 	cacheSize = int(cpuInfo[0].CacheSize)
+	cpuSpeed = int(cpuInfo[0].Mhz)
+}
+
+// cpuUsage CPU使用率 每隔一秒调用
+func cpuUsage() float64 {
+	percent, err := cpu.Percent(0, false)
+	if err != nil {
+		log.MainLogger.WithField("module", "monitor").Error("cpuUsage: ", err)
+		return 0
+	}
+	return percent[0]
 }
