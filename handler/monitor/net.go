@@ -23,9 +23,10 @@ var (
 )
 
 func setDefaultNIC() {
+	logger := log.GetLogger()
 	routes, err := netlink.RouteList(nil, netlink.FAMILY_ALL)
 	if err != nil {
-		log.MainLogger.WithField("module", "monitor").Error("get default nic error: ", err)
+		logger.Error(err)
 	}
 
 	for _, route := range routes {
@@ -34,29 +35,30 @@ func setDefaultNIC() {
 			getDefaultNIC = func() netlink.Link {
 				nic, err := netlink.LinkByIndex(linkIndex)
 				if err != nil {
-					log.MainLogger.WithField("module", "monitor").Error("get default nic error: ", err)
+					logger.Error(err)
 				}
 				return nic
 			}
 			if err != nil {
-				log.MainLogger.WithField("module", "monitor").Error("get default nic error: ", err)
+				logger.Error(err)
 			}
 		}
 	}
 }
 
 func getPublicIPv4() (ipv4 string) {
+	logger := log.GetLogger()
 	url := conf.GlobalConfig.GetString("monitor.publicIPQueryURL")
 	resp, err := http.Get(url)
 	if err != nil {
 		fmt.Println(err)
-		log.MainLogger.WithField("module", "monitor").Error("get public ipv4 error: ", err)
+		logger.Error(err)
 		return
 	}
 	defer func(Body io.ReadCloser) {
 		err := Body.Close()
 		if err != nil {
-			log.MainLogger.WithField("module", "monitor").Error("get public ipv4 error: ", err)
+			logger.Error(err)
 		}
 	}(resp.Body)
 
@@ -64,7 +66,7 @@ func getPublicIPv4() (ipv4 string) {
 	if body, err := io.ReadAll(resp.Body); err == nil {
 		ipv4 = string(body)
 	} else {
-		log.MainLogger.WithField("module", "monitor").Error("get public ipv4 error: ", err)
+		logger.Error(err)
 		return
 	}
 	return

@@ -22,6 +22,6 @@ type Visit struct {
 func autoMigrateVisitModel(db *gorm.DB) {
 	err := db.AutoMigrate(&Visit{})
 	if err != nil {
-		log.MainLogger.WithField("module", "database").Error("auto migrate failed: " + err.Error())
+		log.GetLogger().Error("auto migrate failed: " + err.Error())
 	}
 }

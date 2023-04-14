@@ -18,7 +18,7 @@ var db *gorm.DB
 
 func Init() {
 	var err error
-	logger := log.MainLogger.WithField("func", "database_init")
+	logger := log.GetLogger()
 
 	var dsn = conf.GlobalConfig.GetString("mysql.username") + ":" +
 		conf.GlobalConfig.GetString("mysql.password") + "@tcp(" +
@@ -45,7 +45,7 @@ func Init() {
 // GetDBInstance 获取数据库实例, 其他包使用
 func GetDBInstance() *gorm.DB {
 	if db == nil {
-		log.MainLogger.WithField("module", "database").Error("db is nil")
+		log.GetLoggerWithSkip(2).Error("db is nil")
 		panic("db is nil")
 	}
 	return db

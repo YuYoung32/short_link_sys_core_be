@@ -20,7 +20,7 @@ func memStaticInfoSet() {
 		memTotal = memoryStat.Total
 		swapTotal = memoryStat.SwapTotal
 	} else {
-		log.MainLogger.WithField("module", "monitor").Error("memStaticInfoSet: ", err)
+		log.GetLogger().Error(err)
 	}
 }
 
@@ -31,7 +31,7 @@ func memDynamicInfo() (memUsed, memFree, swapUsed uint64) {
 		memFree = memoryStat.Available
 		swapUsed = memoryStat.SwapTotal - memoryStat.SwapFree
 	} else {
-		log.MainLogger.WithField("module", "monitor").Error("memDynamicInfo: ", err)
+		log.GetLogger().Error(err)
 	}
 	return
 }

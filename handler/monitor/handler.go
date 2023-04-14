@@ -17,7 +17,7 @@ import (
 func Init() {
 	setStaticInfo()
 	setDynamicInfo()
-	log.MainLogger.WithField("module", "monitor").Info("monitor static and dynamic info init")
+	log.GetLogger().Info("monitor static and dynamic info init")
 }
 
 var (
@@ -86,7 +86,7 @@ func setDynamicInfo() {
 }
 
 func MonitorHandler(w http.ResponseWriter, r *http.Request) {
-	moduleLogger := log.MainLogger.WithField("module", "monitor")
+	moduleLogger := log.GetLogger()
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		moduleLogger.Error("monitor handler", err)

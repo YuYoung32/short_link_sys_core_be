@@ -20,15 +20,16 @@ func diskStaticInfoSet() {
 	if usageStat, err := disk.Usage(`/`); err == nil {
 		diskTotal = usageStat.Total
 	} else {
-		log.MainLogger.WithField("module", "monitor").Error("diskStaticInfoSet: ", err)
+		log.GetLogger().Error(err)
 	}
 }
 
 // diskDynamicInfo 磁盘动态信息 每隔一秒调用
 func diskDynamicInfo() (readBytes, writeBytes, diskUsed, diskFree uint64) {
+	logger := log.GetLogger()
 	ioCounters, err := disk.IOCounters(devicename)
 	if err != nil {
-		log.MainLogger.WithField("module", "monitor").Error("diskDynamicInfo: ", err)
+		logger.Error(err)
 		return
 	}
 	readBytes = ioCounters[devicename].ReadBytes
@@ -37,7 +38,7 @@ func diskDynamicInfo() (readBytes, writeBytes, diskUsed, diskFree uint64) {
 		diskUsed = usageStat.Used
 		diskFree = usageStat.Free
 	} else {
-		log.MainLogger.WithField("module", "monitor").Error("diskDynamicInfo: ", err)
+		logger.Error(err)
 	}
 	return
 }

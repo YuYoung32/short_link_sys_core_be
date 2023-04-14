@@ -8,6 +8,7 @@ package log
 import (
 	"github.com/sirupsen/logrus"
 	"os"
+	"runtime"
 	"short_link_sys_core_be/conf"
 )
 
@@ -42,5 +43,23 @@ func Init() {
 	//MainLogger.SetOutput(io.MultiWriter(file, os.Stdout))
 	MainLogger.SetOutput(os.Stdout)
 
-	MainLogger.Info("Logrus init success")
+	GetLogger().Info("Logrus init success")
+}
+
+// GetLogger 获取日志实例, WithField为获得调用方的函数名
+func GetLogger() *logrus.Entry {
+	// 获取调用栈信息
+	pc, _, _, _ := runtime.Caller(1)
+	// 获取函数名
+	funcName := runtime.FuncForPC(pc).Name()
+	return MainLogger.WithField("func", funcName)
+}
+
+// GetLoggerWithSkip 获取日志实例 skip=1 为调用GetLogger的函数, skip=2 为调用GetLogger的函数的上一级函数, 以此类推
+func GetLoggerWithSkip(skip int) *logrus.Entry {
+	// 获取调用栈信息
+	pc, _, _, _ := runtime.Caller(skip)
+	// 获取函数名
+	funcName := runtime.FuncForPC(pc).Name()
+	return MainLogger.WithField("func", funcName)
 }

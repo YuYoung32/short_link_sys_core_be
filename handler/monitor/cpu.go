@@ -21,17 +21,18 @@ var (
 )
 
 func cpuStaticInfoSet() {
+	logger := log.GetLogger()
 	cpuInfo, err := cpu.Info()
 	if err != nil {
-		log.MainLogger.WithField("module", "monitor").Error("cpuStaticInfoSet: ", err)
+		logger.Error(err)
 		return
 	}
 	if cpuCoreNum, err = cpu.Counts(false); err != nil {
-		log.MainLogger.WithField("module", "monitor").Error("cpuStaticInfoSet: ", err)
+		logger.Error(err)
 		return
 	}
 	if cpuThreadNum, err = cpu.Counts(true); err != nil {
-		log.MainLogger.WithField("module", "monitor").Error("cpuStaticInfoSet: ", err)
+		logger.Error(err)
 		return
 	}
 	cpuModelName = cpuInfo[0].ModelName
@@ -44,7 +45,7 @@ func cpuStaticInfoSet() {
 func cpuDynamicInfo() float64 {
 	percent, err := cpu.Percent(0, false)
 	if err != nil {
-		log.MainLogger.WithField("module", "monitor").Error("cpuDynamicInfo: ", err)
+		log.GetLogger().Error(err)
 		return 0
 	}
 	return percent[0]

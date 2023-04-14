@@ -19,11 +19,11 @@ func init() {
 	log.Init()
 	mysql.Init()
 	monitor.Init()
-	log.MainLogger.WithField("module", "main").Info("all module has init")
+	log.GetLogger().Info("all module has init")
 }
 
 func main() {
-	moduleLogger := log.MainLogger.WithField("module", "main")
+	moduleLogger := log.GetLogger()
 
 	http.HandleFunc("/", monitor.MonitorHandler)
 	http.HandleFunc("/:shortLink", forward.ForwardHandler)
