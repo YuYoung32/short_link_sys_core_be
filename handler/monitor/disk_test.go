@@ -16,6 +16,10 @@ func TestDiskStaticInfoSet(t *testing.T) {
 }
 
 func TestDiskDynamicInfo(t *testing.T) {
+	/*
+		dd if=/dev/zero of=tempfile bs=1M count=1024 conv=fdatasync
+		dd if=tempfile of=/dev/null bs=1M count=1024
+	*/
 	readBytes1, writeBytes1, _, _ := diskDynamicInfo()
 	mbDiv := uint64(1024 * 1024)
 	//gbDiv := mbDiv * 1024

@@ -26,10 +26,6 @@ func diskStaticInfoSet() {
 
 // diskDynamicInfo 磁盘动态信息 每隔一秒调用
 func diskDynamicInfo() (readBytes, writeBytes, diskUsed, diskFree uint64) {
-	/*
-		dd if=/dev/zero of=tempfile bs=1M count=1024 conv=fdatasync
-		dd if=tempfile of=/dev/null bs=1M count=1024
-	*/
 	ioCounters, err := disk.IOCounters(devicename)
 	if err != nil {
 		log.MainLogger.WithField("module", "monitor").Error("diskDynamicInfo: ", err)

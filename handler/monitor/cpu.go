@@ -12,12 +12,12 @@ import (
 )
 
 var (
-	cpuModel  string
-	coreNum   int
-	threadNum int
-	cacheSize int // B
-	cpuSpeed  int // MHz
-	startTime time.Time
+	cpuModelName string
+	cpuCoreNum   int
+	cpuThreadNum int
+	cpuCacheSize int // B
+	cpuSpeed     int // MHz
+	startTime    int64
 )
 
 func cpuStaticInfoSet() {
@@ -26,25 +26,25 @@ func cpuStaticInfoSet() {
 		log.MainLogger.WithField("module", "monitor").Error("cpuStaticInfoSet: ", err)
 		return
 	}
-	if coreNum, err = cpu.Counts(false); err != nil {
+	if cpuCoreNum, err = cpu.Counts(false); err != nil {
 		log.MainLogger.WithField("module", "monitor").Error("cpuStaticInfoSet: ", err)
 		return
 	}
-	if threadNum, err = cpu.Counts(true); err != nil {
+	if cpuThreadNum, err = cpu.Counts(true); err != nil {
 		log.MainLogger.WithField("module", "monitor").Error("cpuStaticInfoSet: ", err)
 		return
 	}
-	cpuModel = cpuInfo[0].ModelName
-	cacheSize = int(cpuInfo[0].CacheSize)
+	cpuModelName = cpuInfo[0].ModelName
+	cpuCacheSize = int(cpuInfo[0].CacheSize)
 	cpuSpeed = int(cpuInfo[0].Mhz)
-	startTime = time.Now()
+	startTime = time.Now().Unix()
 }
 
-// cpuUsage CPU使用率 每隔一秒调用
-func cpuUsage() float64 {
+// cpuDynamicInfo CPU使用率 每隔一秒调用
+func cpuDynamicInfo() float64 {
 	percent, err := cpu.Percent(0, false)
 	if err != nil {
-		log.MainLogger.WithField("module", "monitor").Error("cpuUsage: ", err)
+		log.MainLogger.WithField("module", "monitor").Error("cpuDynamicInfo: ", err)
 		return 0
 	}
 	return percent[0]

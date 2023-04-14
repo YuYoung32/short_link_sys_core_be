@@ -7,10 +7,10 @@ package monitor
 
 import (
 	"fmt"
-	"github.com/spf13/viper"
 	"github.com/vishvananda/netlink"
 	"io"
 	"net/http"
+	"short_link_sys_core_be/conf"
 	_ "short_link_sys_core_be/conf"
 	"short_link_sys_core_be/log"
 )
@@ -46,7 +46,7 @@ func setDefaultNIC() {
 }
 
 func getPublicIPv4() (ipv4 string) {
-	url := viper.GetString("monitor.publicIPQueryURL")
+	url := conf.GlobalConfig.GetString("monitor.publicIPQueryURL")
 	resp, err := http.Get(url)
 	if err != nil {
 		fmt.Println(err)
