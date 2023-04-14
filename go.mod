@@ -1,6 +1,6 @@
 module short_link_sys_core_be
 
-go 1.19
+go 1.17
 
 require (
 	github.com/gorilla/websocket v1.5.0

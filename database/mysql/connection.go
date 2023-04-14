@@ -6,9 +6,9 @@
 package mysql
 
 import (
-	"github.com/spf13/viper"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"short_link_sys_core_be/conf"
 	_ "short_link_sys_core_be/conf"
 	"short_link_sys_core_be/log"
 	"time"
@@ -16,25 +16,24 @@ import (
 
 var db *gorm.DB
 
-func init() {
+func Init() {
 	var err error
-	logger := log.MainLogger.WithField("module", "database_init")
+	logger := log.MainLogger.WithField("func", "database_init")
 
-	var dsn = viper.GetString("mysql.username") + ":" +
-		viper.GetString("mysql.password") + "@tcp(" +
-		viper.GetString("mysql.host") + ":" +
-		viper.GetString("mysql.port") + ")/" +
-		viper.GetString("mysql.database")
+	var dsn = conf.GlobalConfig.GetString("mysql.username") + ":" +
+		conf.GlobalConfig.GetString("mysql.password") + "@tcp(" +
+		conf.GlobalConfig.GetString("mysql.host") + ":" +
+		conf.GlobalConfig.GetString("mysql.port") + ")/" +
+		conf.GlobalConfig.GetString("mysql.database")
 	db, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
 		logger.Error("failed to connect database: " + err.Error())
-		panic("failed to connect database")
+		panic(err)
 	}
 	logger.Info("connect database success")
 	sqlDB, err := db.DB()
 	if err != nil {
 		logger.Error("failed to get sqlDB: " + err.Error())
-		panic("failed to get sqlDB")
 	}
 	sqlDB.SetMaxIdleConns(10)
 	sqlDB.SetMaxOpenConns(100)

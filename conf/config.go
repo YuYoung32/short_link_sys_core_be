@@ -7,16 +7,16 @@ package conf
 
 import (
 	"github.com/spf13/viper"
-	"short_link_sys_core_be/log"
 )
 
-func init() {
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath("/root/go_projects/short_link_sys_core_be/conf")
-	//viper.AddConfigPath("./conf")
-	if err := viper.ReadInConfig(); err != nil {
-		log.MainLogger.WithField("module", "conf_init").Error("failed to read config file: " + err.Error())
+var GlobalConfig = viper.New()
+
+func Init() {
+	GlobalConfig.SetConfigName("config")
+	GlobalConfig.SetConfigType("yaml")
+	GlobalConfig.AddConfigPath("/root/go_projects/short_link_sys_core_be/conf")
+	//GlobalConfig.AddConfigPath("./conf")
+	if err := GlobalConfig.ReadInConfig(); err != nil {
 		panic(err)
 	}
 }
