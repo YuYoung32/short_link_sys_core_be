@@ -25,6 +25,7 @@ func init() {
 	log.Init()
 	mysql.Init()
 	monitor.Init()
+	forward.Init()
 	log.GetLogger().Info("all module has init")
 }
 
