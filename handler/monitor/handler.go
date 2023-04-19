@@ -6,8 +6,8 @@
 package monitor
 
 import (
+	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"net/http"
 	"short_link_sys_core_be/conf"
 	"short_link_sys_core_be/log"
 	"sync"
@@ -85,9 +85,9 @@ func setDynamicInfo() {
 	}()
 }
 
-func MonitorHandler(w http.ResponseWriter, r *http.Request) {
+func MonitorHandler(ctx *gin.Context) {
 	moduleLogger := log.GetLogger()
-	conn, err := upgrader.Upgrade(w, r, nil)
+	conn, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
 	if err != nil {
 		moduleLogger.Error("monitor handler", err)
 		return

@@ -6,12 +6,18 @@
 package main
 
 import (
+	"context"
+	"github.com/gin-gonic/gin"
 	"net/http"
+	"os"
+	"os/signal"
 	"short_link_sys_core_be/conf"
 	"short_link_sys_core_be/database/mysql"
 	"short_link_sys_core_be/handler/forward"
 	"short_link_sys_core_be/handler/monitor"
 	"short_link_sys_core_be/log"
+	"syscall"
+	"time"
 )
 
 func init() {
@@ -25,16 +31,36 @@ func init() {
 func main() {
 	moduleLogger := log.GetLogger()
 
-	http.HandleFunc("/", monitor.MonitorHandler)
-	http.HandleFunc("/:shortLink", forward.ForwardHandler)
+	sigCh := make(chan os.Signal)
+	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
 
-	addr := conf.GlobalConfig.GetString("server.host") + ":" + conf.GlobalConfig.GetString("server.port")
-	moduleLogger.Debug("listen: ", addr)
-	err := http.ListenAndServe(addr, nil)
-	if err != nil {
-		panic("ListenAndServe: " + err.Error())
-		return
+	engine := gin.New()
+	engine.Use(gin.LoggerWithWriter(log.MainLogger.Writer()))
+	engine.Use(log.Middleware)
+
+	engine.GET("/", monitor.MonitorHandler)
+	engine.Any("/:shortLink", forward.ForwardHandler)
+
+	runAddr := conf.GlobalConfig.GetString("server.host") + ":" + conf.GlobalConfig.GetString("server.port")
+	srv := &http.Server{
+		Addr:    runAddr,
+		Handler: engine,
 	}
+	go func() {
+		err := srv.ListenAndServe()
+		moduleLogger.Info("forward server is listening on " + runAddr)
+		if err != nil && err != http.ErrServerClosed {
+			moduleLogger.Error(err)
+			panic(err)
+		}
+	}()
 
-	moduleLogger.Info("forward server is listening on port " + conf.GlobalConfig.GetString("server.port"))
+	// 阻塞, 等待结束
+	sig := <-sigCh
+	moduleLogger.Info("receive signal: ", sig, ", start to exit...")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := srv.Shutdown(ctx); err != nil {
+		moduleLogger.Error(err)
+	}
 }
