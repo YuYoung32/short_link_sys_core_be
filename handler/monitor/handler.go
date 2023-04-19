@@ -59,7 +59,7 @@ func setDynamicInfo() {
 	sendBytesOld, recvBytesOld := netDynamicInfo()
 	go func() {
 		for {
-			time.Sleep(time.Duration(conf.GlobalConfig.GetInt("monitor.interval")) * time.Millisecond)
+			time.Sleep(time.Duration(conf.GlobalConfig.GetInt("handler.monitor.interval")) * time.Millisecond)
 
 			dynamicInfoLock.Lock()
 			dynamicInfo.CPUUsageRatioSec = int(cpuDynamicInfo())
@@ -89,13 +89,13 @@ func MonitorHandler(ctx *gin.Context) {
 	moduleLogger := log.GetLogger()
 	conn, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
 	if err != nil {
-		moduleLogger.Error("monitor handler", err)
+		moduleLogger.Error("handler.monitor handler", err)
 		return
 	}
 	defer func(conn *websocket.Conn) {
 		err := conn.Close()
 		if err != nil {
-			moduleLogger.Error("monitor handler", err)
+			moduleLogger.Error("handler.monitor handler", err)
 		}
 	}(conn)
 
@@ -111,8 +111,8 @@ func MonitorHandler(ctx *gin.Context) {
 				return
 			}
 			moduleLogger.Debug("remote auth: ", string(message))
-			moduleLogger.Debug("local auth: ", conf.GlobalConfig.GetString("monitor.authToken"))
-			if string(message) == conf.GlobalConfig.GetString("monitor.authToken") {
+			moduleLogger.Debug("local auth: ", conf.GlobalConfig.GetString("handler.monitor.authToken"))
+			if string(message) == conf.GlobalConfig.GetString("handler.monitor.authToken") {
 				authed = true
 			} else {
 				err = conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.ClosePolicyViolation, "no auth"))

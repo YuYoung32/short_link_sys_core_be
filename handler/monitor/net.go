@@ -48,7 +48,7 @@ func setDefaultNIC() {
 
 func getPublicIPv4() (ipv4 string) {
 	logger := log.GetLogger()
-	url := conf.GlobalConfig.GetString("monitor.publicIPQueryURL")
+	url := conf.GlobalConfig.GetString("handler.monitor.publicIPQueryURL")
 	resp, err := http.Get(url)
 	if err != nil {
 		fmt.Println(err)
