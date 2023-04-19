@@ -34,8 +34,10 @@ func main() {
 	sigCh := make(chan os.Signal)
 	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
 
+	gin.SetMode(gin.ReleaseMode)
 	engine := gin.New()
-	engine.Use(gin.LoggerWithWriter(log.MainLogger.Writer()))
+
+	//engine.Use(gin.LoggerWithWriter(log.MainLogger.Writer()))
 	engine.Use(log.Middleware)
 
 	engine.GET("/", monitor.MonitorHandler)
@@ -47,8 +49,8 @@ func main() {
 		Handler: engine,
 	}
 	go func() {
-		err := srv.ListenAndServe()
 		moduleLogger.Info("forward server is listening on " + runAddr)
+		err := srv.ListenAndServe()
 		if err != nil && err != http.ErrServerClosed {
 			moduleLogger.Error(err)
 			panic(err)
