@@ -11,7 +11,7 @@ import (
 )
 
 type Visit struct {
-	ShortLink string `json:"shortLink"`
+	ShortLink string `json:"shortLink" gorm:"type:varchar(255) COLLATE utf8_bin"`
 	IP        string `json:"ip"`
 	Region    string `json:"region"`
 	VisitTime int64  `json:"visitTime" gorm:"autoCreateTime"`
