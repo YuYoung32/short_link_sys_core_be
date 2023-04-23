@@ -104,6 +104,11 @@ func MonitorHandler(ctx *gin.Context) {
 	for {
 		// 首次auth
 		if !authed {
+			err := conn.SetReadDeadline(time.Now().Add(5 * time.Second))
+			if err != nil {
+				moduleLogger.Error("set read deadline failed:", err)
+				return
+			}
 			_, message, err := conn.ReadMessage()
 			if err != nil {
 				moduleLogger.Error("read connection failed:", err)

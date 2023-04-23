@@ -12,6 +12,7 @@ import (
 	"testing"
 )
 
+// 生成一些访问数据
 func TestData(t *testing.T) {
 	conf.Init()
 	Init()
