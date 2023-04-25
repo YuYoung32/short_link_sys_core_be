@@ -89,13 +89,13 @@ func MonitorHandler(ctx *gin.Context) {
 	moduleLogger := log.GetLogger()
 	conn, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
 	if err != nil {
-		moduleLogger.Error("handler.monitor handler", err)
+		moduleLogger.Debug(err)
 		return
 	}
 	defer func(conn *websocket.Conn) {
 		err := conn.Close()
 		if err != nil {
-			moduleLogger.Error("handler.monitor handler", err)
+			moduleLogger.Debug("handler.monitor handler", err)
 		}
 	}(conn)
 
@@ -143,7 +143,7 @@ func MonitorHandler(ctx *gin.Context) {
 		err := conn.WriteJSON(dynamicInfo)
 		dynamicInfoLock.Unlock()
 		if err != nil {
-			moduleLogger.Error("write connection failed:", err)
+			moduleLogger.Debug("write connection failed:", err)
 			return
 		}
 		time.Sleep(time.Second)

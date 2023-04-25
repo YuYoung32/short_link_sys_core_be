@@ -11,7 +11,6 @@ import (
 	"net/http"
 	"short_link_sys_core_be/database/mysql"
 	"short_link_sys_core_be/log"
-	"strings"
 )
 
 func Init() {
@@ -19,37 +18,41 @@ func Init() {
 }
 
 func ForwardHandler(ctx *gin.Context) {
+	logger := log.GetLogger()
 	shortLink := ctx.Param("shortLink")
-	log.GetLogger().Debug("shortLink: ", shortLink)
 	longLink, err := mappingLink(shortLink)
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			log.GetLogger().Debugf("record %v not found: %v", err.Error(), shortLink)
+			logger.Debugf("record %v not found: %v", err.Error(), shortLink)
 		} else {
-			log.GetLogger().Error("failed to query database: " + err.Error())
+			logger.Error("failed to query database: " + err.Error())
 		}
 		ctx.JSON(http.StatusNotFound, gin.H{})
 		return
+	}
+	var addr string
+	if ctx.Request.Header.Get("X-Real-IP") != "" {
+		addr = ctx.Request.Header.Get("X-Real-IP")
+	} else if ctx.Request.Header.Get("X-Forwarded-For") != "" {
+		addr = ctx.Request.Header.Get("X-Forwarded-For")
+	} else {
+		addr = ctx.ClientIP()
 	}
 
 	// 非阻塞记录访问日志
 	go func(addr string) {
 		logger := log.GetLogger()
-		parts := strings.Split(addr, ":")
-		if len(parts) != 2 {
-			logger.Error("invalid remote addr: " + addr)
-			return
-		}
-		region, err := mappingRegion(parts[0])
+
+		region, err := mappingRegion(addr)
 		if err != nil {
-			logger.Error("invalid remote addr: " + addr)
+			logger.Debug("invalid remote addr: " + addr)
 			region = "未知"
 		}
 		mysql.GetDBInstance().Create(&mysql.Visit{
 			ShortLink: shortLink,
-			IP:        parts[0],
+			IP:        addr,
 			Region:    region,
 		})
-	}(ctx.Request.RemoteAddr)
+	}(addr)
 	ctx.Redirect(http.StatusTemporaryRedirect, longLink)
 }
