@@ -6,6 +6,8 @@
 package monitor
 
 import (
+	"github.com/shirou/gopsutil/v3/disk"
+	"strings"
 	"testing"
 	"time"
 )
@@ -29,4 +31,30 @@ func TestDiskDynamicInfo(t *testing.T) {
 		t.Log((readBytes2-readBytes1)/mbDiv, (writeBytes2-writeBytes1)/mbDiv, used/mbDiv, free/mbDiv)
 		readBytes1, writeBytes1 = readBytes2, writeBytes2
 	}
+}
+
+func TestPartitions(t *testing.T) {
+	partitions, err := disk.Partitions(true)
+	if err != nil {
+		t.Error(err)
+	}
+	var device string
+	for _, partition := range partitions {
+		if partition.Mountpoint == `/` {
+			device = partition.Device
+			break
+		}
+	}
+	s := strings.Split(device, "/")
+	device = s[len(s)-1]
+	t.Log(device)
+	ioCounters, err := disk.IOCounters(device)
+	if err != nil {
+		t.Log(err)
+		return
+	}
+	t.Log(ioCounters)
+	readBytes := ioCounters[device].ReadBytes
+	writeBytes := ioCounters[device].WriteBytes
+	t.Log(readBytes, writeBytes)
 }
