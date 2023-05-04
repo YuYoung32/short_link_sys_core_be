@@ -13,7 +13,7 @@ import (
 	"short_link_sys_core_be/log"
 )
 
-func Init() {
+func init() {
 	mappingInit()
 }
 

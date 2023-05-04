@@ -20,7 +20,7 @@ var (
 )
 
 // Init 配置Logrus
-func Init() {
+func init() {
 	level := map[string]logrus.Level{
 		"debug": logrus.DebugLevel,
 		"info":  logrus.InfoLevel,

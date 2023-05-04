@@ -17,7 +17,7 @@ import (
 
 var db *gorm.DB
 
-func Init() {
+func init() {
 	var err error
 	moduleLogger := log.GetLogger()
 

@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-func Init() {
+func init() {
 	setStaticInfo()
 	setDynamicInfo()
 	log.GetLogger().Info("monitor static and dynamic info init")

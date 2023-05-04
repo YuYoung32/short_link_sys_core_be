@@ -21,11 +21,7 @@ import (
 )
 
 func init() {
-	conf.Init()
-	log.Init()
-	mysql.Init()
-	monitor.Init()
-	forward.Init()
+	_ = mysql.GetDBInstance() // 触发数据库初始化
 	log.GetLogger().Info("all module has init")
 }
 
@@ -38,7 +34,6 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 	engine := gin.New()
 
-	//engine.Use(gin.LoggerWithWriter(log.MainLogger.Writer()))
 	engine.Use(log.Middleware)
 
 	engine.GET("/", monitor.MonitorHandler)
