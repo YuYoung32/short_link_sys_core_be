@@ -25,7 +25,7 @@ func ForwardHandler(ctx *gin.Context) {
 		if err == gorm.ErrRecordNotFound {
 			logger.Debugf("record %v not found: %v", err.Error(), shortLink)
 		} else {
-			logger.Error("failed to query database: " + err.Error())
+			logger.Debug("failed to query database: " + err.Error())
 		}
 		ctx.JSON(http.StatusNotFound, gin.H{})
 		return
