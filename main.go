@@ -31,6 +31,12 @@ func main() {
 	sigCh := make(chan os.Signal)
 	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
 
+	if conf.GlobalConfig.GetString("mode") == "dev" {
+		gin.SetMode(gin.DebugMode)
+	} else if conf.GlobalConfig.GetString("mode") == "release" {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	gin.SetMode(gin.ReleaseMode)
 	engine := gin.New()
 

@@ -29,7 +29,11 @@ func init() {
 		"fatal": logrus.FatalLevel,
 		"panic": logrus.PanicLevel,
 	}
-	MainLogger.SetLevel(level[conf.GlobalConfig.GetString("log.level")])
+	if conf.GlobalConfig.GetString("mode") == "dev" {
+		MainLogger.SetLevel(level["debug"])
+	} else {
+		MainLogger.SetLevel(level[conf.GlobalConfig.GetString("log.level")])
+	}
 
 	MainLogger.SetFormatter(&logrus.TextFormatter{
 		TimestampFormat: "2006-01-02 15:04:05",
