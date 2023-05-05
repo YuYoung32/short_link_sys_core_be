@@ -6,13 +6,16 @@
 package forward
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/bits-and-blooms/bloom/v3"
+	"github.com/redis/go-redis/v9"
 	"io"
 	"net/http"
 	"short_link_sys_core_be/conf"
 	"short_link_sys_core_be/database/mysql"
+	project_redis "short_link_sys_core_be/database/redis"
 	"short_link_sys_core_be/log"
 	"time"
 )
@@ -35,7 +38,7 @@ func mappingInit() {
 	var lastRefreshTime time.Time
 	mysql.GetDBInstance().Model(&linkModelInstance).Count(&lastAmount)
 	// 首次加载必须初始化
-	mysql.GetDBInstance().Model(&linkModelInstance).Pluck("shortLink", &shortLinks)
+	mysql.GetDBInstance().Model(&linkModelInstance).Pluck("short_link", &shortLinks)
 	lastRefreshTime = time.Now()
 	for _, link := range shortLinks {
 		bf.AddString(link)
@@ -49,7 +52,7 @@ func mappingInit() {
 				// 数据库无变化
 				time.Sleep(bfDetectInterval)
 			} else {
-				mysql.GetDBInstance().Model(&linkModelInstance).Pluck("shortLink", &shortLinks)
+				mysql.GetDBInstance().Model(&linkModelInstance).Pluck("short_link", &shortLinks)
 				lastRefreshTime = time.Now()
 				lastAmount = currentAmount
 				bf.ClearAll()
@@ -68,12 +71,27 @@ func mappingLink(shortLink string) (string, error) {
 		// 一定不存在
 		return "", fmt.Errorf("short link not exist")
 	}
+	//return "", nil // 直接返回 #测试1
 
+	var longLink string
+	var err error
 	// 从Redis中查询热点数据
+	// #测试2 注释开始
+	rdb := project_redis.GetRedisInstance()
+
+	longLink, err = rdb.Get(context.Background(), shortLink).Result()
+	if err == nil {
+		// 命中
+		return longLink, nil
+	} else if err != redis.Nil {
+		// 未命中
+		log.GetLogger().Error(err)
+	}
+	// #测试2 注释结束
 
 	// 从数据库中查询
-	var longLink string
-	err := mysql.GetDBInstance().Model(&linkModelInstance).Select("long_link").Where("short_link = ?", shortLink).Take(&longLink).Error
+	err = mysql.GetDBInstance().Model(&linkModelInstance).Select("long_link").Where("short_link = ?", shortLink).Take(&longLink).Error
+	rdb.Set(context.Background(), shortLink, longLink, 0)
 	if err != nil {
 		return "", err
 	}
